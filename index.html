@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draf Pemesanan - Menu Sekolah</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a73e8 0%, #6c8ef5 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a73e8;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-logo {
+            width: 200px;
+            height: 200px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .loading-logo img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background-color: white;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* ===== CONTAINER UTAMA ===== */
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: none;
+        }
+
+        header {
+            text-align: center;
+            padding: 25px 20px;
+            background: linear-gradient(135deg, #1a73e8 0%, #6c8ef5 100%);
+            color: white;
+            position: relative;
+        }
+
+        .header-logo {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 15px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-logo img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+
+        header h1 {
+            margin-bottom: 5px;
+            font-size: 26px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 15px;
+        }
+
+        /* ===== MENU GAMBAR A4 DENGAN SCROLL ===== */
+        .menu-section {
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .menu-section h2 {
+            color: #1a73e8;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .menu-container {
+            position: relative;
+            width: 100%;
+            max-height: 400px; /* Batas tinggi untuk scroll */
+            overflow-y: auto; /* Scroll vertikal */
+            overflow-x: hidden; /* Tidak ada scroll horizontal */
+            border-radius: 10px;
+            background: linear-gradient(90deg, #f5f7fa 0%, #e4e8f0 100%);
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+
+        .menu-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .menu-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .menu-container::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .menu-container::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        .a4-poster-container {
+            width: 100%;
+            max-width: 595px; /* Lebar A4 dalam piksel (595px untuk 72dpi) */
+            margin: 0 auto;
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .a4-poster-container:hover {
+            transform: scale(1.01);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .a4-poster {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1/1.4142; /* Rasio A4 (1:√2) */
+            object-fit: contain;
+            display: block;
+            background-color: white;
+        }
+
+        .poster-caption {
+            text-align: center;
+            padding: 15px;
+            color: #555;
+            font-size: 14px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+
+        /* ===== FORM PEMESANAN ===== */
+        .form-section {
+            padding: 30px;
+        }
+
+        .form-section h2 {
+            color: #1a73e8;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eaeaea;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 15px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #1a73e8;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .error-message {
+            color: #d93025;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* ===== PILIHAN PEMBAYARAN ===== */
+        .payment-options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .payment-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .payment-option input {
+            display: none;
+        }
+
+        .payment-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background-color: #f5f7fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            border: 2px solid transparent;
+        }
+
+        .payment-option input:checked + .payment-label {
+            background-color: #1a73e8;
+            color: white;
+            border-color: #1a73e8;
+        }
+
+        .payment-label:hover {
+            background-color: #e3eaf3;
+        }
+
+        /* ===== QRIS SECTION ===== */
+        .qris-section {
+            display: none;
+            margin: 25px 0;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f7ff;
+            border-radius: 10px;
+            border: 2px dashed #1a73e8;
+        }
+
+        .qris-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .qris-title {
+            color: #1a73e8;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .qris-image {
+            max-width: 250px;
+            margin: 0 auto 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .qris-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* ===== TOMBOL WHATSAPP ===== */
+        .whatsapp-section {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .whatsapp-section.active {
+            display: block;
+        }
+
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+
+        .whatsapp-btn:hover {
+            background-color: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+
+        .whatsapp-btn:active {
+            transform: translateY(0);
+        }
+
+        .whatsapp-icon {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* ===== TOMBOL SUBMIT ===== */
+        .submit-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .submit-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #0d5bb9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(26, 115, 232, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ===== POPUP GAMBAR BESAR ===== */
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-content {
+            background-color: white;
+            border-radius: 10px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .popup-img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                display: block;
+            }
+            
+            .container {
+                border-radius: 10px;
+            }
+            
+            header {
+                padding: 20px 15px;
+            }
+            
+            .header-logo {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .header-logo img {
+                width: 50px;
+                height: 50px;
+            }
+            
+            header h1 {
+                font-size: 22px;
+            }
+            
+            .menu-section {
+                padding: 20px 15px;
+            }
+            
+            .menu-container {
+                max-height: 350px;
+                padding: 15px;
+            }
+            
+            .a4-poster-container {
+                max-width: 100%;
+            }
+            
+            .form-section {
+                padding: 20px 15px;
+            }
+            
+            .form-section h2 {
+                font-size: 20px;
+            }
+            
+            .payment-options {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .qris-image {
+                max-width: 200px;
+            }
+            
+            .whatsapp-btn, .submit-btn {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .loading-logo {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .loading-logo img {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .loading-text {
+                font-size: 22px;
+            }
+            
+            .loading-bar {
+                width: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 20px;
+            }
+            
+            .menu-container {
+                max-height: 300px;
+                padding: 10px;
+            }
+            
+            .poster-caption {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .loading-text {
+                font-size: 20px;
+            }
+            
+            .loading-bar {
+                width: 200px;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen">
+        <div class="loading-logo">
+            <img src="logopikr.png" alt="Logo Pemesanan" id="loading-logo" onerror="this.style.display='none'">
+        </div>
+        <div class="loading-text">DRAF PEMESANAN</div>
+        <div class="loading-bar">
+            <div class="loading-progress" id="loading-progress"></div>
+        </div>
+    </div>
+
+    <!-- KONTEN UTAMA -->
+    <div class="container" id="main-content">
+        <header>
+            <div class="header-logo">
+                <img src="logopikr.png" alt="Logo Pemesanan" id="header-logo" onerror="this.style.display='none'">
+            </div>
+            <h1>DRAF PEMESANAN</h1>
+            <p>Isi form berikut untuk membuat pesanan Anda</p>
+        </header>
+
+        <!-- MENU GAMBAR A4 DENGAN SCROLL -->
+        <section class="menu-section">
+            <h2>CONTOH PRODUK POSTER A4</h2>
+            <div class="menu-container">
+                <div class="a4-poster-container" id="a4-poster-container">
+                    <img src="poster1.jpg" alt="Contoh Produk Poster A4" class="a4-poster" id="a4-poster" 
+                         onerror="this.src='https://via.placeholder.com/595x842/ffffff/1a73e8?text=CONTOH+POSTER+A4\nUkuran: 210mm x 297mm\nFormat: Portrait'">
+                </div>
+                <div class="poster-caption">
+                    Klik poster untuk memperbesar gambar
+                </div>
+            </div>
+        </section>
+
+        <!-- FORM PEMESANAN -->
+        <section class="form-section">
+            <h2>BUAT PESANANMU</h2>
+            
+            <form id="pemesanan-form" method="POST" action="https://docs.google.com/forms/d/e/1FAIpQLSensy6YELrOlq3FOoGsdJBRX6Fv_NypU4H1YtH-WITEy79t_w/formResponse" target="hidden-iframe">
+                <!-- NAMA LENGKAP -->
+                <div class="form-group">
+                    <label for="nama">1. NAMA LENGKAP *</label>
+                    <input type="text" id="nama" name="entry.1897942009" placeholder="Masukkan nama lengkap" required>
+                    <div class="error-message" id="nama-error">Nama lengkap harus diisi</div>
+                </div>
+
+                <!-- ASAL SEKOLAH/KELAS -->
+                <div class="form-group">
+                    <label for="sekolah">2. ASAL SEKOLAH/KELAS *</label>
+                    <input type="text" id="sekolah" name="entry.963350465" placeholder="Contoh: SMA NEGERI 2 MENGWI - KELAS XII IPA 1" required>
+                    <div class="error-message" id="sekolah-error">Asal sekolah/kelas harus diisi</div>
+                </div>
+
+                <!-- NOMOR TELEPON -->
+                <div class="form-group">
+                    <label for="telepon">3. NOMOR TELEPON *</label>
+                    <input type="tel" id="telepon" name="entry.140391067" pattern="08[0-9]{8,11}" placeholder="08xxxxxxxxxx" required>
+                    <div class="error-message" id="telepon-error">Nomor telepon harus diisi dan dimulai dengan 08</div>
+                </div>
+
+                <!-- JENIS PRODUK DAN JUMLAH -->
+                <div class="form-group">
+                    <label for="produk">4. JENIS PRODUK DAN JUMLAH *</label>
+                    <textarea id="produk" name="entry.1009174514" placeholder="Contoh: Kaos Olahraga, 2 pcs, Jaket Almamater, 1 pcs" required></textarea>
+                    <div class="error-message" id="produk-error">Jenis produk dan jumlah harus diisi</div>
+                </div>
+
+                <!-- KETERANGAN -->
+                <div class="form-group">
+                    <label for="keterangan">5. KETERANGAN</label>
+                    <textarea id="keterangan" name="entry.229904569" placeholder="Contoh: Warna Merah, Ukuran L, Model Kerah V"></textarea>
+                </div>
+
+                <!-- JENIS PEMBAYARAN -->
+                <div class="form-group">
+                    <label>6. JENIS PEMBAYARAN *</label>
+                    <div class="payment-options">
+                        <div class="payment-option">
+                            <input type="radio" id="transfer" name="entry.1578010412" value="Transfer" required>
+                            <label for="transfer" class="payment-label">TRANSFER</label>
+                        </div>
+                        <div class="payment-option">
+                            <input type="radio" id="bendahara" name="entry.1578010412" value="Bayar Melalui Bendahara" required>
+                            <label for="bendahara" class="payment-label">BAYAR MELALUI BENDAHARA</label>
+                        </div>
+                    </div>
+                    <div class="error-message" id="pembayaran-error">Pilih jenis pembayaran</div>
+                </div>
+
+                <!-- QRIS SECTION (Muncul jika pilih TRANSFER) -->
+                <div class="qris-section" id="qris-section">
+                    <div class="qris-title">SCAN QR CODE UNTUK PEMBAYARAN</div>
+                    <div class="qris-image">
+                        <img src="qris.jpg" alt="QR Code Pembayaran" id="qris-image" onerror="this.src='https://via.placeholder.com/250x250/1a73e8/FFFFFF?text=QRIS.JPG'">
+                    </div>
+                    <p>Gunakan aplikasi mobile banking/e-wallet untuk scan QR code di atas</p>
+                </div>
+
+                <!-- WHATSAPP BUTTON (Muncul jika pilih TRANSFER) -->
+                <div class="whatsapp-section" id="whatsapp-section">
+                    <button type="button" class="whatsapp-btn" id="whatsapp-btn">
+                        <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.507 14.307l-.009.075c-.266-1.371-1.17-2.494-2.348-3.174-.954-.559-1.753-.712-2.858-.712-1.157 0-1.857.222-2.858.712-1.178.68-2.082 1.803-2.348 3.174l-.009.075c-.05.276-.03.566.055.837.085.271.236.516.439.714.202.198.452.351.725.447.273.095.563.13.85.101.287-.03.562-.121.807-.267.245-.146.452-.342.606-.574.154-.232.252-.494.287-.767l.021-.144c.169-.881.692-1.629 1.469-2.098.777-.469 1.704-.627 2.613-.442.909.185 1.688.716 2.176 1.491.488.775.645 1.704.442 2.613l-.021.144c-.035.273-.133.535-.287.767-.154.232-.361.428-.606.574-.245.146-.52.237-.807.267-.287.029-.577-.006-.85-.101-.273-.096-.523-.249-.725-.447-.203-.198-.354-.443-.439-.714a1.73 1.73 0 0 1-.055-.837zM12 0C5.373 0 0 5.373 0 12c0 2.126.56 4.14 1.547 5.897L0 24l6.335-1.652A11.96 11.96 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
+                        </svg>
+                        KIRIM BUKTI VIA WHATSAPP
+                    </button>
+                    <p style="margin-top: 10px; color: #666; font-size: 14px;">
+                        Setelah transfer, klik tombol di atas untuk mengirim bukti pembayaran
+                    </p>
+                </div>
+
+                <!-- TOMBOL SUBMIT -->
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn" id="submit-btn">KIRIM PEMESANAN</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- IFRAME HIDDEN UNTUK GOOGLE FORM -->
+        <iframe name="hidden-iframe" style="display:none;"></iframe>
+
+        <footer>
+            <p>&copy; 2025 Draf Pemesanan Sekolah. Hak Cipta Dilindungi.</p>
+        </footer>
+    </div>
+
+    <!-- POPUP GAMBAR BESAR -->
+    <div class="popup" id="image-popup">
+        <div class="popup-content">
+            <button class="popup-close" id="close-popup">×</button>
+            <img src="" alt="Gambar Poster A4" class="popup-img" id="popup-img">
+        </div>
+    </div>
+
+    <script>
+        // ========== LOADING SCREEN ==========
+        console.log('=== MEMULAI LOADING SCREEN ===');
+        
+        const loadingScreen = document.getElementById('loading-screen');
+        const loadingProgress = document.getElementById('loading-progress');
+        const mainContent = document.getElementById('main-content');
+        
+        loadingScreen.style.display = 'flex';
+        mainContent.style.display = 'none';
+        
+        let progress = 0;
+        const interval = setInterval(function() {
+            progress += 1;
+            loadingProgress.style.width = progress + '%';
+            
+            if (progress >= 100) {
+                clearInterval(interval);
+                setTimeout(function() {
+                    loadingScreen.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    console.log('Konten utama ditampilkan');
+                    setupPosterImage(); // Setup poster A4
+                }, 300);
+            }
+        }, 30);
+
+        // ========== SETUP POSTER A4 ==========
+        function setupPosterImage() {
+            const posterContainer = document.getElementById('a4-poster-container');
+            const posterImage = document.getElementById('a4-poster');
+            
+            // Add click event untuk popup
+            posterContainer.addEventListener('click', function() {
+                const popupImg = document.getElementById('popup-img');
+                popupImg.src = posterImage.src;
+                document.getElementById('image-popup').style.display = 'flex';
+            });
+            
+            console.log('Poster A4 siap');
+        }
+
+        // ========== LOGIKA PEMBAYARAN ==========
+        const transferRadio = document.getElementById('transfer');
+        const bendaharaRadio = document.getElementById('bendahara');
+        const qrisSection = document.getElementById('qris-section');
+        const whatsappSection = document.getElementById('whatsapp-section');
+        
+        transferRadio.addEventListener('change', function() {
+            if (this.checked) {
+                qrisSection.classList.add('active');
+                whatsappSection.classList.add('active');
+            }
+        });
+        
+        bendaharaRadio.addEventListener('change', function() {
+            if (this.checked) {
+                qrisSection.classList.remove('active');
+                whatsappSection.classList.remove('active');
+            }
+        });
+
+        // ========== WHATSAPP FUNCTION ==========
+        document.getElementById('whatsapp-btn').addEventListener('click', function() {
+            const namaInput = document.getElementById('nama');
+            const nama = namaInput.value.trim();
+            
+            // Validasi nama
+            if (!nama) {
+                alert('Silakan isi nama lengkap terlebih dahulu!');
+                namaInput.focus();
+                return;
+            }
+            
+            // Format pesan WhatsApp
+            const pesan = `BERIKUT ADALAH BUKTI TRANSFER SAYA ATAS NAMA : ${nama}`;
+            
+            // Nomor admin (sudah dikonversi ke format internasional)
+            const nomorAdmin = "6287885044117"; // 087885044117
+            const url = `https://wa.me/${nomorAdmin}?text=${encodeURIComponent(pesan)}`;
+            
+            // Buka WhatsApp
+            window.open(url, '_blank');
+            console.log('Membuka WhatsApp dengan pesan:', pesan);
+        });
+
+        // ========== VALIDASI FORM ==========
+        const form = document.getElementById('pemesanan-form');
+        const submitBtn = document.getElementById('submit-btn');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let isValid = true;
+            
+            // Validasi Nama
+            const nama = document.getElementById('nama');
+            const namaError = document.getElementById('nama-error');
+            if (!nama.value.trim()) {
+                namaError.style.display = 'block';
+                isValid = false;
+            } else {
+                namaError.style.display = 'none';
+            }
+            
+            // Validasi Sekolah/Kelas
+            const sekolah = document.getElementById('sekolah');
+            const sekolahError = document.getElementById('sekolah-error');
+            if (!sekolah.value.trim()) {
+                sekolahError.style.display = 'block';
+                isValid = false;
+            } else {
+                sekolahError.style.display = 'none';
+            }
+            
+            // Validasi Telepon
+            const telepon = document.getElementById('telepon');
+            const teleponError = document.getElementById('telepon-error');
+            const teleponPattern = /^08[0-9]{8,11}$/;
+            if (!teleponPattern.test(telepon.value)) {
+                teleponError.style.display = 'block';
+                isValid = false;
+            } else {
+                teleponError.style.display = 'none';
+            }
+            
+            // Validasi Produk
+            const produk = document.getElementById('produk');
+            const produkError = document.getElementById('produk-error');
+            if (!produk.value.trim()) {
+                produkError.style.display = 'block';
+                isValid = false;
+            } else {
+                produkError.style.display = 'none';
+            }
+            
+            // Validasi Pembayaran
+            const pembayaranError = document.getElementById('pembayaran-error');
+            const pembayaranSelected = document.querySelector('input[name="entry.1578010412"]:checked');
+            if (!pembayaranSelected) {
+                pembayaranError.style.display = 'block';
+                isValid = false;
+            } else {
+                pembayaranError.style.display = 'none';
+            }
+            
+            if (!isValid) {
+                alert('Harap lengkapi semua data yang wajib diisi!');
+                return;
+            }
+            
+            // Jika semua valid, submit form
+            submitBtn.textContent = 'MENGIRIM...';
+            submitBtn.disabled = true;
+            
+            // Simpan ke localStorage (backup)
+            const formData = {
+                nama: nama.value,
+                sekolah: sekolah.value,
+                telepon: telepon.value,
+                produk: produk.value,
+                keterangan: document.getElementById('keterangan').value,
+                pembayaran: pembayaranSelected.value,
+                tanggal: new Date().toISOString()
+            };
+            localStorage.setItem('draftPemesanan', JSON.stringify(formData));
+            
+            // Submit ke Google Form
+            setTimeout(() => {
+                form.submit();
+                
+                // Reset form setelah 2 detik
+                setTimeout(() => {
+                    form.reset();
+                    qrisSection.classList.remove('active');
+                    whatsappSection.classList.remove('active');
+                    submitBtn.textContent = 'KIRIM PEMESANAN';
+                    submitBtn.disabled = false;
+                    
+                    // Tampilkan konfirmasi
+                    alert('Pesanan berhasil dikirim! Terima kasih.');
+                }, 2000);
+                
+            }, 1000);
+        });
+
+        // ========== POPUP CLOSE ==========
+        document.getElementById('close-popup').addEventListener('click', function() {
+            document.getElementById('image-popup').style.display = 'none';
+        });
+        
+        // Close popup ketika klik di luar gambar
+        document.getElementById('image-popup').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+
+        // ========== AUTO-FORMAT TELEPON ==========
+        document.getElementById('telepon').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // ========== CHECK LOGO EXIST ==========
+        function checkLogoExists() {
+            const logo = new Image();
+            logo.src = 'logopikr.png';
+            logo.onload = function() {
+                console.log('Logo berhasil dimuat');
+            }
+            logo.onerror = function() {
+                console.log('Logo tidak ditemukan, menggunakan placeholder');
+            }
+        }
+
+        // ========== CHECK QRIS EXIST ==========
+        function checkQRISExists() {
+            const qris = new Image();
+            qris.src = 'qris.jpg';
+            qris.onload = function() {
+                console.log('QRIS berhasil dimuat');
+            }
+            qris.onerror = function() {
+                console.log('QRIS tidak ditemukan');
+            }
+        }
+
+        // ========== CHECK POSTER A4 EXIST ==========
+        function checkPosterExists() {
+            const poster = new Image();
+            poster.src = 'poster1.jpg';
+            poster.onload = function() {
+                console.log('Poster A4 berhasil dimuat');
+            }
+            poster.onerror = function() {
+                console.log('Poster A4 tidak ditemukan, menggunakan placeholder A4');
+                // Ganti dengan placeholder A4
+                document.getElementById('a4-poster').src = 'https://via.placeholder.com/595x842/ffffff/1a73e8?text=CONTOH+POSTER+A4\nUkuran: 210mm x 297mm\nFormat: Portrait';
+            }
+        }
+
+        // Jalankan cek setelah loading
+        setTimeout(() => {
+            checkLogoExists();
+            checkQRISExists();
+            checkPosterExists();
+        }, 2000);
+
+        // ========== LOAD DRAFT FROM LOCALSTORAGE ==========
+        function loadDraft() {
+            const savedDraft = localStorage.getItem('draftPemesanan');
+            if (savedDraft) {
+                try {
+                    const draft = JSON.parse(savedDraft);
+                    document.getElementById('nama').value = draft.nama || '';
+                    document.getElementById('sekolah').value = draft.sekolah || '';
+                    document.getElementById('telepon').value = draft.telepon || '';
+                    document.getElementById('produk').value = draft.produk || '';
+                    document.getElementById('keterangan').value = draft.keterangan || '';
+                    
+                    // Set pembayaran radio button
+                    if (draft.pembayaran === 'Transfer') {
+                        document.getElementById('transfer').checked = true;
+                        qrisSection.classList.add('active');
+                        whatsappSection.classList.add('active');
+                    } else if (draft.pembayaran === 'Bayar Melalui Bendahara') {
+                        document.getElementById('bendahara').checked = true;
+                    }
+                    
+                    console.log('Draft berhasil dimuat dari localStorage');
+                } catch (e) {
+                    console.error('Error loading draft:', e);
+                }
+            }
+        }
+
+        // Load draft saat halaman siap
+        document.addEventListener('DOMContentLoaded', loadDraft);
+        
+        console.log('=== SEMUA SCRIPT DIEKSEKUSI ===');
+    </script>
+</body>
+</html>
